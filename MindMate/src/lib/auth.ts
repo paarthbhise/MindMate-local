@@ -33,6 +33,7 @@ export const getAuthState = (): AuthState => {
 
 export const saveAuthState = (authState: AuthState): void => {
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
+  window.dispatchEvent(new Event('authChange'));
 };
 
 export const register = (username: string, email: string, password: string): { success: boolean; error?: string } => {
@@ -108,6 +109,7 @@ export const logout = (): void => {
   localStorage.removeItem('moodHistory');
   localStorage.removeItem('favoriteResources');
   localStorage.removeItem('customQuickReplies');
+  window.dispatchEvent(new Event('authChange'));
 };
 
 export const getCurrentUser = (): User | null => {

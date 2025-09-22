@@ -1,11 +1,13 @@
 import { useLocation } from "wouter";
 import { getUserProfile } from "@/lib/userProfile";
+import { isAuthenticated } from "@/lib/auth";
 import QuotesWidget from "@/components/QuotesWidget";
 import NotificationManager from "@/components/NotificationManager";
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const profile = getUserProfile();
+  const isAuth = isAuthenticated();
+  const profile = isAuth ? getUserProfile() : null;
 
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-16 hero-gradient">
@@ -31,30 +33,44 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => setLocation('/chat')}
-              className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg transform hover:scale-105 flex items-center justify-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-              </svg>
-              <span>Start Chat</span>
-            </button>
-            <button
-              onClick={() => setLocation('/mood')}
-              className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg border border-gray-200 dark:border-gray-600 transform hover:scale-105 flex items-center justify-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-              <span>Track Mood</span>
-            </button>
+            {isAuth ? (
+              <>
+                <button
+                  onClick={() => setLocation('/chat')}
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg transform hover:scale-105 flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                  <span>Start Chat</span>
+                </button>
+                <button
+                  onClick={() => setLocation('/mood')}
+                  className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg border border-gray-200 dark:border-gray-600 transform hover:scale-105 flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                  <span>Track Mood</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setLocation('/login')}
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg transform hover:scale-105 flex items-center justify-center space-x-2"
+                >
+                  <span>Login</span>
+                </button>
+                <button
+                  onClick={() => setLocation('/signup')}
+                  className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out font-semibold text-lg border border-gray-200 dark:border-gray-600 transform hover:scale-105 flex items-center justify-center space-x-2"
+                >
+                  <span>Sign Up</span>
+                </button>
+              </>
+            )}
           </div>
-        </div>
-
-        {/* Notification Reminder */}
-        <div className="mt-8">
-          <NotificationManager />
         </div>
 
         {/* Feature Cards */}
