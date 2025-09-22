@@ -216,6 +216,7 @@ export default function ChatWindow() {
       <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border animate-fade-in">
         {/* Chat Header */}
         <iframe
+          className="w-full h-auto aspect-video max-w-full"
 	src="https://paarthbhise-cortex-genai-techchatbot.hf.space"
   width="1024"
 	height="750"
