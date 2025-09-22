@@ -212,126 +212,15 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border animate-fade-in">
         {/* Chat Header */}
-        <div className="gradient-bg px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center animate-pulse-slow">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-white font-semibold text-lg">MindMate Assistant</h2>
-                <p className="text-primary-foreground/80 text-sm">Here to listen and support you</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation('/')}
-              className="text-white/80 hover:text-white transition-colors duration-300 ease-in-out"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <iframe
+	src="https://paarthbhise-cortex-genai-techchatbot.hf.space"
+  width="1024"
+	height="750"
+></iframe>
 
-        {/* Chat Messages */}
-        <div className="h-[calc(60vh-180px)] min-h-[300px] overflow-y-auto p-6 space-y-4 bg-background/50 chat-scrollbar">
-          {chatHistory.length > 0 ? (
-            <div className="flex flex-col">
-              {chatHistory.map((message: ChatMessage) => (
-                <MessageBubble 
-                  key={message.id} 
-                  message={message} 
-                  onDelete={deleteMessage}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              No messages yet. Start a conversation!
-            </div>
-          )}
-          
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="flex justify-start animate-fade-in">
-              <div className="bg-card rounded-2xl rounded-bl-md px-4 py-3 shadow-md border border-border glass">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-ping"></div>
-                  <div className="w-2 h-2 bg-primary rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
-                  <div className="w-2 h-2 bg-primary rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Quick Reply Chips */}
-        <div className="px-6 py-3 bg-card border-t border-border">
-          <div className="flex flex-wrap gap-2 mb-2">
-            {allQuickReplies.map((reply) => (
-              <div key={reply.id} className="flex items-center">
-                <button
-                  onClick={() => handleQuickReply(reply.text)}
-                  disabled={isTyping}
-                  className="bg-muted hover:bg-primary/10 text-muted-foreground px-3 py-2 rounded-2xl text-sm transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {reply.text}
-                </button>
-                {customQuickReplies.some(r => r.id === reply.id) && (
-                  <button
-                    onClick={() => removeCustomQuickReply(reply)}
-                    className="ml-2 text-red-400 hover:text-red-600 text-xs"
-                    title="Remove custom reply"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-            <span>Tip: Send a message to add it as a quick reply</span>
-            <button
-              onClick={handleClearHistory}
-              className="text-red-400 hover:text-red-600 underline"
-            >
-              Clear History
-            </button>
-          </div>
-        </div>
-
-        {/* Chat Input */}
-        <div className="p-6 bg-card">
-          <div className="flex space-x-3">
-            <div className="flex-1 relative gradient-border">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Share what's on your mind..."
-                disabled={isTyping}
-                className="w-full px-4 py-3 rounded-2xl border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 ease-in-out disabled:opacity-50"
-              />
-            </div>
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isTyping}
-              className="gradient-bg text-white px-6 py-3 rounded-2xl transition-all duration-300 ease-in-out shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Safety Modal */}
