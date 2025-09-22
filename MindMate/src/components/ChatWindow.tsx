@@ -212,16 +212,15 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border animate-fade-in">
+    <div className="max-w-7xl max-h-[900px] mx-auto">
+      <div className="bg-card rounded-2xl max-h-[900px] shadow-xl overflow-hidden border border-border animate-fade-in">
         {/* Chat Header */}
         <iframe
-          className="w-full h-auto aspect-video max-w-full"
-	src="https://paarthbhise-cortex-genai-techchatbot.hf.space"
-  width="1024"
-	height="750"
-></iframe>
-
+          className="w-full h-[800px] max-w-full"
+          src="https://paarthbhise-cortex-genai-techchatbot.hf.space"
+          width="100%"
+          height="100%">
+        </iframe>
       </div>
 
       {/* Safety Modal */}
