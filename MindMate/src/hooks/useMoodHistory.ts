@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { MoodEntry } from "../lib/types";
 
 export function useMoodHistory() {
@@ -35,5 +35,7 @@ export function useMoodHistory() {
     return moodHistory.filter(entry => entry.date === today);
   };
 
-  return { moodHistory, addMoodEntry, getTodaysMoods };
+  const memoizedMoodHistory = useMemo(() => moodHistory, [moodHistory]);
+
+  return { moodHistory: memoizedMoodHistory, addMoodEntry, getTodaysMoods };
 }

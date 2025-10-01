@@ -1,8 +1,15 @@
+import { useMemo } from "react";
 import { useMoodHistory } from "@/hooks/useMoodHistory";
 import type { MoodEntry } from "../lib/types";
+import { MoodGraph } from './MoodGraph';
 
 export default function MoodAnalytics() {
   const { moodHistory } = useMoodHistory();
+
+  const sortedHistory = useMemo(() => 
+    [...moodHistory].sort((a, b) => b.timestamp - a.timestamp), 
+    [moodHistory]
+  );
 
   const calculateAverage = (entries: MoodEntry[]) => {
     if (entries.length === 0) return 0;
@@ -14,21 +21,21 @@ export default function MoodAnalytics() {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     
-    return moodHistory.filter(entry => new Date(entry.date) >= oneWeekAgo);
+    return sortedHistory.filter(entry => entry.timestamp >= oneWeekAgo.getTime());
   };
 
   const getMonthlyData = () => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     
-    return moodHistory.filter(entry => new Date(entry.date) >= oneMonthAgo);
+    return sortedHistory.filter(entry => entry.timestamp >= oneMonthAgo.getTime());
   };
 
   const getMoodTrend = () => {
-    if (moodHistory.length < 3) return "Not enough data";
+    if (sortedHistory.length < 3) return "Not enough data";
     
-    const recent = moodHistory.slice(0, 3);
-    const older = moodHistory.slice(3, 6);
+    const recent = sortedHistory.slice(0, 3);
+    const older = sortedHistory.slice(3, 6);
     
     const recentAvg = calculateAverage(recent);
     const olderAvg = calculateAverage(older);
@@ -75,7 +82,7 @@ export default function MoodAnalytics() {
     }
   };
 
-  if (moodHistory.length === 0) {
+  if (sortedHistory.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
         <div className="text-gray-400 text-4xl mb-4">📊</div>
@@ -146,35 +153,9 @@ export default function MoodAnalytics() {
       {/* Recent Mood Chart */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Recent Mood History
+          Recent Mood Graph
         </h3>
-        <div className="space-y-2">
-          {moodHistory.slice(0, 7).map((entry, index) => (
-            <div key={entry.id} className="flex items-center space-x-3">
-              <span className="text-2xl">{entry.emoji}</span>
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {new Date(entry.date).toLocaleDateString(undefined, {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {entry.value}/10
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-teal-400 to-teal-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${entry.value * 10}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <MoodGraph />
       </div>
     </div>
   );

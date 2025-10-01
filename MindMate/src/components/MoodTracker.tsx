@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMoodHistory } from "@/hooks/useMoodHistory";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const MOOD_EMOJIS = [
   { value: 1, emoji: "😢", label: "Very Sad" },
@@ -28,6 +29,8 @@ export default function MoodTracker() {
   const { moodHistory, addMoodEntry, getTodaysMoods } = useMoodHistory();
   const { toast } = useToast();
   const todaysMoods = getTodaysMoods();
+  const [timeframe, setTimeframe] = useState('weekly');
+  const [showAll, setShowAll] = useState(false);
 
   const handleMoodSelect = (value: number) => {
     setSelectedMood(value);
@@ -58,24 +61,51 @@ export default function MoodTracker() {
     setSelectedMood(null);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string, timestamp?: number) => {
+    const date = new Date(timestamp || dateString);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
+    const timeFormat: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    };
+
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return `Today at ${date.toLocaleTimeString(undefined, timeFormat)}`;
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return `Yesterday at ${date.toLocaleTimeString(undefined, timeFormat)}`;
     } else {
       return date.toLocaleDateString(undefined, {
         weekday: "short",
         month: "short",
         day: "numeric",
+        hour: 'numeric',
+        minute: 'numeric',
       });
     }
   };
+
+  const filteredHistory = useMemo(() => {
+    const now = new Date();
+    let filtered = moodHistory;
+
+    if (timeframe === 'daily') {
+      const today = now.setHours(0, 0, 0, 0);
+      filtered = moodHistory.filter(entry => new Date(entry.timestamp).getTime() >= today);
+    } else if (timeframe === 'weekly') {
+      const oneWeekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      filtered = moodHistory.filter(entry => new Date(entry.timestamp) >= oneWeekAgo);
+    } else if (timeframe === 'monthly') {
+      const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      filtered = moodHistory.filter(entry => new Date(entry.timestamp) >= oneMonthAgo);
+    }
+    return filtered.sort((a, b) => b.timestamp - a.timestamp);
+  }, [moodHistory, timeframe]);
+
+  const visibleHistory = showAll ? filteredHistory : filteredHistory.slice(0, 5);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -95,22 +125,16 @@ export default function MoodTracker() {
         </h2>
 
         {todaysMoods.length > 0 && !selectedMood && (
-          <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4 mb-6">
-            <div className="space-y-3">
-              <p className="font-medium text-teal-700 dark:text-teal-300 text-center">
-                You've logged your mood {todaysMoods.length} time(s) today!
-              </p>
-              {todaysMoods.map(mood => (
-                <div key={mood.id} className="flex items-center justify-center space-x-3">
-                  <span className="text-3xl">{mood.emoji}</span>
-                  <div>
-                    <p className="text-sm text-teal-600 dark:text-teal-400">
-                      Mood: {mood.value}/10
-                    </p>
-                  </div>
-                </div>
-              ))}
+          <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4 mb-6 flex items-center justify-center space-x-4">
+            <p className="font-medium text-teal-700 dark:text-teal-300">
+              You've logged your mood
+            </p>
+            <div className="flex items-center justify-center w-16 h-16 bg-teal-100 dark:bg-teal-800 rounded-full">
+              <span className="text-3xl font-bold text-teal-600 dark:text-teal-200">{todaysMoods.length}</span>
             </div>
+            <p className="font-medium text-teal-700 dark:text-teal-300">
+              time(s) today!
+            </p>
           </div>
         )}
 
@@ -172,16 +196,28 @@ export default function MoodTracker() {
 
       {/* Mood History */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-          Mood History
-        </h2>
-        <div className="space-y-3">
-          {moodHistory.length === 0 ? (
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Mood History
+          </h2>
+          <Select onValueChange={setTimeframe} defaultValue={timeframe}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="monthly">Monthly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-3 h-96 overflow-y-auto pr-4">
+          {visibleHistory.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-              No mood entries yet. Start tracking your mood today!
+              No mood entries for this period.
             </p>
           ) : (
-            moodHistory.map((entry) => (
+            visibleHistory.map((entry) => (
               <div
                 key={entry.id}
                 className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl"
@@ -190,7 +226,7 @@ export default function MoodTracker() {
                   <span className="text-2xl">{entry.emoji}</span>
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {formatDate(entry.date)}
+                      {formatDate(entry.date, entry.timestamp)}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Mood: {entry.value}/10
@@ -207,6 +243,16 @@ export default function MoodTracker() {
             ))
           )}
         </div>
+        {filteredHistory.length > 5 && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-teal-500 hover:text-teal-600 font-semibold"
+            >
+              {showAll ? 'Show Less' : 'Show More'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
