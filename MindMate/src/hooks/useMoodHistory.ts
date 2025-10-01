@@ -23,17 +23,17 @@ export function useMoodHistory() {
       timestamp: Date.now(),
     };
 
-    const updatedHistory = [newEntry, ...moodHistory.filter(m => m.date !== entry.date)];
+    const updatedHistory = [newEntry, ...moodHistory];
     const limitedHistory = updatedHistory.slice(0, 30); // Keep only last 30 days
 
     setMoodHistory(limitedHistory);
     localStorage.setItem("moodHistory", JSON.stringify(limitedHistory));
   };
 
-  const getTodaysMood = () => {
+  const getTodaysMoods = () => {
     const today = new Date().toISOString().split('T')[0];
-    return moodHistory.find(entry => entry.date === today);
+    return moodHistory.filter(entry => entry.date === today);
   };
 
-  return { moodHistory, addMoodEntry, getTodaysMood };
+  return { moodHistory, addMoodEntry, getTodaysMoods };
 }

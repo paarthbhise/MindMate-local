@@ -1,9 +1,10 @@
-import { useState } from "react";
-import type { ResourceItem } from "../lib/types";
+import { useState, useEffect, useMemo } from "react";
+import type { ResourceItem, DetailedResource } from "../lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, Phone, MessageCircle, Search, Star, ExternalLink, Filter } from "lucide-react";
-import ResourceCard from "@/components/ResourceCard";
+import { Heart, Search, Filter, Phone, MessageCircle, ExternalLink } from 'lucide-react';
 import BreathingModal from "@/components/BreathingModal";
+import { COUNTRY_RESOURCES } from "./resources/countryResources";
+import ResourceCard from "@/components/ResourceCard";
 
 const RESOURCES: ResourceItem[] = [
   {
@@ -56,7 +57,7 @@ const RESOURCES: ResourceItem[] = [
   },
 ];
 
-const DETAILED_RESOURCES = [
+const DETAILED_RESOURCES: DetailedResource[] = [
   // Crisis Support
   {
     id: "suicide-prevention",
@@ -199,11 +200,11 @@ const DETAILED_RESOURCES = [
   {
     id: "mindtools",
     title: "MindTools",
-    description: "Evidence-based tools and techniques for managing stress, building resilience, and improving mental wellbeing.",
+    description: "Practical resources to help you develop management, leadership, and personal effectiveness skills.",
     category: "Educational",
-    contact: "Online Resources",
+    contact: "Online Learning",
     url: "https://www.mindtools.com/",
-    tags: ["tools", "stress management", "resilience", "skills", "workplace"],
+    tags: ["skills", "leadership", "management", "personal growth"],
     icon: "external"
   }
 ];
@@ -217,10 +218,15 @@ const CATEGORIES = [
   "Educational"
 ];
 
+const ALL_RESOURCES: (DetailedResource & { country?: string })[] = [...DETAILED_RESOURCES, ...Object.values(COUNTRY_RESOURCES).flat()];
+
+const COUNTRIES = ["Global", "India", "United Kingdom", "Canada", "Australia", "Germany", "France", "Brazil", "Japan", "Russia", "China", "Pakistan"];
+
 export default function Resources() {
   const [showBreathingModal, setShowBreathingModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("Global");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("favoriteResources");
     return saved ? JSON.parse(saved) : [];
@@ -234,20 +240,34 @@ export default function Resources() {
     } else if (resource.id === "apps") {
       toast({
         title: "Coming Soon!",
-        description: "Check back later for recommended mental health apps.",
+        description: "We\'re working on adding new apps and tools. Stay tuned!",
+        variant: "default",
       });
+    } else {
+      window.open(resource.link, "_blank");
     }
   };
 
-  const filteredDetailedResources = DETAILED_RESOURCES.filter(resource => {
-    const matchesCategory = selectedCategory === "All" || resource.category === selectedCategory;
-    const matchesSearch = searchQuery === "" || 
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesCategory && matchesSearch;
-  });
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem("favoriteResources");
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+  }, []);
+
+  const filteredDetailedResources = useMemo(() => {
+    return ALL_RESOURCES.filter(resource => {
+      const matchesCategory = selectedCategory === "All" || resource.category === selectedCategory;
+      const matchesSearch =
+        searchQuery === "" ||
+        resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (resource.tags && resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
+      const matchesCountry = selectedCountry === "Global" ? !resource.country || resource.country === "Global" : resource.country === selectedCountry;
+
+      return matchesCategory && matchesSearch && matchesCountry;
+    });
+  }, [searchQuery, selectedCategory, selectedCountry]);
 
   const crisisResources = filteredDetailedResources.filter(r => r.category === "Crisis Support");
   const otherResources = filteredDetailedResources.filter(r => r.category !== "Crisis Support");
@@ -382,6 +402,17 @@ export default function Resources() {
                   >
                     {CATEGORIES.map(category => (
                       <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    {COUNTRIES.map(country => (
+                      <option key={country} value={country}>{country}</option>
                     ))}
                   </select>
                 </div>

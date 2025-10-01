@@ -25,9 +25,9 @@ const EMOJI_BUTTONS = [
 
 export default function MoodTracker() {
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
-  const { moodHistory, addMoodEntry, getTodaysMood } = useMoodHistory();
+  const { moodHistory, addMoodEntry, getTodaysMoods } = useMoodHistory();
   const { toast } = useToast();
-  const todaysMood = getTodaysMood();
+  const todaysMoods = getTodaysMoods();
 
   const handleMoodSelect = (value: number) => {
     setSelectedMood(value);
@@ -94,18 +94,22 @@ export default function MoodTracker() {
           Today's Mood
         </h2>
 
-        {todaysMood && !selectedMood && (
+        {todaysMoods.length > 0 && !selectedMood && (
           <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-xl p-4 mb-6">
-            <div className="flex items-center justify-center space-x-3">
-              <span className="text-3xl">{todaysMood.emoji}</span>
-              <div>
-                <p className="font-medium text-teal-700 dark:text-teal-300">
-                  You already logged your mood today!
-                </p>
-                <p className="text-sm text-teal-600 dark:text-teal-400">
-                  Mood: {todaysMood.value}/10
-                </p>
-              </div>
+            <div className="space-y-3">
+              <p className="font-medium text-teal-700 dark:text-teal-300 text-center">
+                You've logged your mood {todaysMoods.length} time(s) today!
+              </p>
+              {todaysMoods.map(mood => (
+                <div key={mood.id} className="flex items-center justify-center space-x-3">
+                  <span className="text-3xl">{mood.emoji}</span>
+                  <div>
+                    <p className="text-sm text-teal-600 dark:text-teal-400">
+                      Mood: {mood.value}/10
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

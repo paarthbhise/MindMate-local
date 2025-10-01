@@ -22,6 +22,17 @@ export interface ResourceItem {
   type: 'internal' | 'external';
 }
 
+export interface DetailedResource {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  contact: string;
+  url: string;
+  tags: string[];
+  icon: string;
+}
+
 export type ToastType = 'success' | 'error' | 'info';
 
 export interface ToastMessage {

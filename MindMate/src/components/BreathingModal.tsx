@@ -7,12 +7,17 @@ interface BreathingModalProps {
 
 type BreathingState = 'idle' | 'inhale' | 'hold' | 'exhale';
 
+const CYCLE_TIMES = {
+  inhale: 4,
+  hold: 7,
+  exhale: 8,
+};
+
 export default function BreathingModal({ isOpen, onClose }: BreathingModalProps) {
   const [breathingState, setBreathingState] = useState<BreathingState>('idle');
-  const [count, setCount] = useState(4);
+  const [count, setCount] = useState(0);
   const [isActive, setIsActive] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -21,74 +26,48 @@ export default function BreathingModal({ isOpen, onClose }: BreathingModalProps)
   }, [isOpen]);
 
   useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  const countdown = (seconds: number, nextState: BreathingState) => {
-    let remaining = seconds;
-    setCount(remaining);
-    
-    intervalRef.current = setInterval(() => {
-      remaining--;
-      setCount(remaining);
-      
-      if (remaining <= 0) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-        
-        if (nextState === 'inhale') {
-          timeoutRef.current = setTimeout(() => runCycle(), 1000);
-        } else {
-          setBreathingState(nextState);
-          runCycle();
-        }
-      }
-    }, 1000);
-  };
-
-  const runCycle = () => {
-    if (!isActive) return;
-    
-    if (breathingState === 'inhale') {
-      setBreathingState('hold');
-      countdown(7, 'exhale');
-    } else if (breathingState === 'hold') {
-      setBreathingState('exhale');
-      countdown(8, 'inhale');
-    } else if (breathingState === 'exhale') {
-      setBreathingState('inhale');
-      countdown(4, 'hold');
+    if (!isActive || breathingState === 'idle') {
+      return;
     }
-  };
+
+    const currentStateTime = CYCLE_TIMES[breathingState as keyof typeof CYCLE_TIMES];
+    setCount(currentStateTime);
+
+    timerRef.current = setInterval(() => {
+      setCount(prev => prev - 1);
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      
+      if (breathingState === 'inhale') setBreathingState('hold');
+      else if (breathingState === 'hold') setBreathingState('exhale');
+      else if (breathingState === 'exhale') setBreathingState('inhale');
+
+    }, currentStateTime * 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      clearTimeout(timeout);
+    };
+  }, [isActive, breathingState]);
 
   const startBreathing = () => {
-    if (!isActive) {
+    if (isActive) {
+      stopBreathing();
+    } else {
       setIsActive(true);
       setBreathingState('inhale');
-      countdown(4, 'hold');
-    } else {
-      stopBreathing();
     }
   };
 
   const stopBreathing = () => {
     setIsActive(false);
     setBreathingState('idle');
-    setCount(4);
-    
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+    setCount(0);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
   };
 
@@ -130,7 +109,7 @@ export default function BreathingModal({ isOpen, onClose }: BreathingModalProps)
           </p>
           
           <p className="text-3xl font-bold text-teal-500">
-            {count}
+            {count > 0 ? count : ''}
           </p>
         </div>
 

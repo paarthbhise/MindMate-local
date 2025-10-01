@@ -50,10 +50,10 @@ function App() {
               <Switch>
                 <Route path="/" component={Home} />
                 <Route path="/login">
-                  {() => (isAuth ? <Redirect to="/" /> : <AuthForm />)}
+                  {() => (isAuth ? <Redirect to="/" /> : <AuthForm onAuthSuccess={() => setIsAuth(true)} />)}
                 </Route>
                 <Route path="/signup">
-                  {() => (isAuth ? <Redirect to="/" /> : <AuthForm />)}
+                  {() => (isAuth ? <Redirect to="/" /> : <AuthForm onAuthSuccess={() => setIsAuth(true)} />)}
                 </Route>
                 <Route path="/chat">
                   {() => (isAuth ? <Chat /> : <Redirect to="/login" />)}
