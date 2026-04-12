@@ -1,33 +1,57 @@
 import { useState, useEffect, useMemo } from "react";
 import type { MoodEntry } from "../lib/types";
+import { getAuthToken } from "../lib/auth";
 
 export function useMoodHistory() {
   const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("moodHistory");
-    if (stored) {
+    const fetchMoods = async () => {
+      const token = getAuthToken();
+      if (!token) return;
       try {
-        setMoodHistory(JSON.parse(stored));
+        const res = await fetch('/api/mood', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMoodHistory(data);
+        }
       } catch (error) {
-        console.error("Failed to parse mood history:", error);
-        setMoodHistory([]);
+        console.error("Failed to fetch mood history:", error);
+      } finally {
+        setIsLoaded(true);
       }
-    }
+    };
+    fetchMoods();
   }, []);
 
-  const addMoodEntry = (entry: Omit<MoodEntry, "id" | "timestamp">) => {
+  const addMoodEntry = async (entry: Omit<MoodEntry, "id" | "timestamp">) => {
     const newEntry: MoodEntry = {
       ...entry,
-      id: Date.now().toString(),
+      id: "temp-" + Date.now().toString(),
       timestamp: Date.now(),
     };
 
-    const updatedHistory = [newEntry, ...moodHistory];
-    const limitedHistory = updatedHistory.slice(0, 30); // Keep only last 30 days
+    const updatedHistory = [newEntry, ...moodHistory].slice(0, 30);
+    setMoodHistory(updatedHistory);
 
-    setMoodHistory(limitedHistory);
-    localStorage.setItem("moodHistory", JSON.stringify(limitedHistory));
+    const token = getAuthToken();
+    if (token) {
+      try {
+        await fetch('/api/mood', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          body: JSON.stringify(entry)
+        });
+      } catch (error) {
+        console.error("Failed to save mood entry:", error);
+      }
+    }
   };
 
   const getTodaysMoods = () => {
@@ -37,5 +61,5 @@ export function useMoodHistory() {
 
   const memoizedMoodHistory = useMemo(() => moodHistory, [moodHistory]);
 
-  return { moodHistory: memoizedMoodHistory, addMoodEntry, getTodaysMoods };
+  return { moodHistory: memoizedMoodHistory, addMoodEntry, getTodaysMoods, isLoaded };
 }

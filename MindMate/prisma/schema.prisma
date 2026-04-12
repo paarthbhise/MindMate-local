@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  profile            UserProfile?
+  chatMessages       ChatMessage[]
+  moodEntries        MoodEntry[]
+  favoriteResources  FavoriteResource[]
+  customQuickReplies CustomQuickReply[]
+}
+
+model UserProfile {
+  id             String  @id @default(uuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id])
+  name           String
+  joinedDate     String
+  notifications  Boolean @default(true)
+  darkMode       Boolean @default(false)
+  reminderTime   String  @default("20:00")
+  theme          String  @default("teal")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  text      String
+  sender    String   // "user" or "bot"
+  timestamp DateTime @default(now())
+}
+
+model MoodEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      String
+  value     Int
+  emoji     String
+  timestamp DateTime @default(now())
+}
+
+model FavoriteResource {
+  id         String @id @default(uuid())
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+  resourceId String
+}
+
+model CustomQuickReply {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  text   String
+}

@@ -71,9 +71,9 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
       let result;
       
       if (isLogin) {
-        result = login(formData.username, formData.password);
+        result = await login(formData.username, formData.password);
       } else {
-        result = register(formData.username, formData.email, formData.password);
+        result = await register(formData.username, formData.email, formData.password);
       }
 
       if (result.success) {

@@ -8,6 +8,7 @@ import MessageBubble from "./MessageBubble";
 import LoadingSpinner from "./LoadingSpinner";
 import SafetyModal from "./SafetyModal";
 import { useLocation } from "wouter";
+import { getAuthToken } from "@/lib/auth";
 
 export default function ChatWindow() {
   const { chatHistory, addMessage, addMessages, clearHistory, deleteMessage, isLoaded } = useChatHistory();
@@ -23,30 +24,24 @@ export default function ChatWindow() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  // Load custom quick replies from localStorage
+  // Load custom quick replies from backend
   useEffect(() => {
-    const stored = localStorage.getItem("customQuickReplies");
-    if (stored) {
+    const fetchQuickReplies = async () => {
+      const token = getAuthToken();
+      if (!token) return;
       try {
-        const parsed = JSON.parse(stored);
-        // Handle both old format (string[]) and new format (QuickReply[])
-        if (Array.isArray(parsed)) {
-          if (parsed.length > 0 && typeof parsed[0] === 'string') {
-            // Convert old format to new format
-            const converted = parsed.map((text: string) => ({
-              id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-              text
-            }));
-            setCustomQuickReplies(converted);
-            localStorage.setItem("customQuickReplies", JSON.stringify(converted));
-          } else {
-            setCustomQuickReplies(parsed);
-          }
+        const res = await fetch('/api/chat/quick-replies', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCustomQuickReplies(data);
         }
       } catch (error) {
-        console.error("Failed to parse custom quick replies:", error);
+        console.error("Failed to load quick replies:", error);
       }
-    }
+    };
+    fetchQuickReplies();
   }, []);
 
   // Initialize chat with personalized welcome message if no history exists
@@ -163,19 +158,31 @@ export default function ChatWindow() {
 
   const allQuickReplies = [...defaultQuickReplies, ...customQuickReplies];
 
-  const addCustomQuickReply = (text: string) => {
+  const addCustomQuickReply = async (text: string) => {
     if (!customQuickReplies.some(r => r.text === text) && text.trim().length > 0) {
       const newReply: QuickReply = {
-        id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+        id: "temp-" + Date.now().toString(),
         text: text.trim()
       };
       const updated = [...customQuickReplies, newReply];
       setCustomQuickReplies(updated);
-      localStorage.setItem("customQuickReplies", JSON.stringify(updated));
+      
+      const token = getAuthToken();
+      if (token) {
+        try {
+          await fetch('/api/chat/quick-replies', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ replies: updated })
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
   };
 
-  const removeCustomQuickReply = (replyToRemove: QuickReply | string) => {
+  const removeCustomQuickReply = async (replyToRemove: QuickReply | string) => {
     const idToRemove = typeof replyToRemove === 'string' 
       ? customQuickReplies.find(r => r.text === replyToRemove)?.id
       : replyToRemove.id;
@@ -183,7 +190,14 @@ export default function ChatWindow() {
     if (idToRemove) {
       const updated = customQuickReplies.filter(r => r.id !== idToRemove);
       setCustomQuickReplies(updated);
-      localStorage.setItem("customQuickReplies", JSON.stringify(updated));
+      const token = getAuthToken();
+      if (token) {
+        await fetch('/api/chat/quick-replies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ replies: updated })
+        });
+      }
     }
   };
 

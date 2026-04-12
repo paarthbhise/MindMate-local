@@ -5,6 +5,7 @@ import { Heart, Search, Filter, Phone, MessageCircle, ExternalLink } from 'lucid
 import BreathingModal from "@/components/BreathingModal";
 import { COUNTRY_RESOURCES } from "./resources/countryResources";
 import ResourceCard from "@/components/ResourceCard";
+import { getAuthToken } from "@/lib/auth";
 
 const RESOURCES: ResourceItem[] = [
   {
@@ -227,10 +228,7 @@ export default function Resources() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("Global");
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("favoriteResources");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [showDetailed, setShowDetailed] = useState(false);
   const { toast } = useToast();
 
@@ -249,10 +247,22 @@ export default function Resources() {
   };
 
   useEffect(() => {
-    const storedFavorites = localStorage.getItem("favoriteResources");
-    if (storedFavorites) {
-      setFavorites(JSON.parse(storedFavorites));
-    }
+    const fetchFavorites = async () => {
+      const token = getAuthToken();
+      if (!token) return;
+      try {
+        const res = await fetch('/api/resources/favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFavorites(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchFavorites();
   }, []);
 
   const filteredDetailedResources = useMemo(() => {
@@ -272,13 +282,25 @@ export default function Resources() {
   const crisisResources = filteredDetailedResources.filter(r => r.category === "Crisis Support");
   const otherResources = filteredDetailedResources.filter(r => r.category !== "Crisis Support");
 
-  const toggleFavorite = (resourceId: string) => {
+  const toggleFavorite = async (resourceId: string) => {
     const newFavorites = favorites.includes(resourceId)
       ? favorites.filter(id => id !== resourceId)
       : [...favorites, resourceId];
     
     setFavorites(newFavorites);
-    localStorage.setItem("favoriteResources", JSON.stringify(newFavorites));
+    
+    const token = getAuthToken();
+    if (token) {
+      try {
+        await fetch('/api/resources/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ resourceIds: newFavorites })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
     
     toast({
       title: favorites.includes(resourceId) ? "Removed from favorites" : "Added to favorites",
