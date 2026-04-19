@@ -22,7 +22,7 @@ export async function fetchUserProfile(): Promise<UserProfile | null> {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     if (res.ok) {
       const data = await res.json();
       cachedProfile = data;
@@ -53,7 +53,7 @@ export async function saveUserProfile(profile: Partial<UserProfile>): Promise<vo
       },
       body: JSON.stringify(profile)
     });
-    
+
     if (res.ok) {
       const updated = await res.json();
       cachedProfile = updated;

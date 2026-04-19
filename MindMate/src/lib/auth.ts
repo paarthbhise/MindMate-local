@@ -16,11 +16,11 @@ const AUTH_USER_KEY = 'mindmate_user';
 export const getAuthState = (): AuthState => {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
   const userStr = localStorage.getItem(AUTH_USER_KEY);
-  
+
   if (!token || !userStr) {
     return { isAuthenticated: false, user: null };
   }
-  
+
   try {
     const user = JSON.parse(userStr);
     return { isAuthenticated: true, user };
@@ -48,11 +48,11 @@ export const register = async (username: string, email: string, password: string
       body: JSON.stringify({ username, email, password }),
     });
     const data = await res.json();
-    
+
     if (!res.ok) {
       return { success: false, error: data.error || 'Registration failed' };
     }
-    
+
     saveAuthState(data.token, data.user);
     return { success: true };
   } catch (error) {
@@ -68,11 +68,11 @@ export const login = async (usernameOrEmail: string, password: string): Promise<
       body: JSON.stringify({ usernameOrEmail, password }),
     });
     const data = await res.json();
-    
+
     if (!res.ok) {
       return { success: false, error: data.error || 'Login failed' };
     }
-    
+
     saveAuthState(data.token, data.user);
     return { success: true };
   } catch (error) {

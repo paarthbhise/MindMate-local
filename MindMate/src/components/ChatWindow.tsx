@@ -51,7 +51,7 @@ export default function ChatWindow() {
       const userName = profile?.name || "friend";
       const hour = new Date().getHours();
       let greeting = "Hello";
-      
+
       if (hour < 12) greeting = "Good morning";
       else if (hour < 17) greeting = "Good afternoon";
       else greeting = "Good evening";
@@ -73,7 +73,7 @@ export default function ChatWindow() {
     const scrollTimeout = setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
-    
+
     return () => clearTimeout(scrollTimeout);
   }, [chatHistory, isTyping]);
 
@@ -89,18 +89,18 @@ export default function ChatWindow() {
 
     // Store the message text before clearing the input
     const messageText = inputValue.trim();
-    
+
     // Clear input field immediately to improve user experience
     setInputValue("");
-    
+
     // Add the message to chat history
     addMessage(userMessage);
-    
+
     // Check if this message should be added as a custom quick reply
-    if (messageText.length > 5 && 
-        messageText.length < 50 && 
-        !defaultQuickReplies.some(reply => reply.text === messageText) && 
-        !customQuickReplies.some(reply => reply.text === messageText)) {
+    if (messageText.length > 5 &&
+      messageText.length < 50 &&
+      !defaultQuickReplies.some(reply => reply.text === messageText) &&
+      !customQuickReplies.some(reply => reply.text === messageText)) {
       addCustomQuickReply(messageText);
     }
 
@@ -115,7 +115,7 @@ export default function ChatWindow() {
 
     try {
       const botResponse = await sendMockMessage(messageText);
-      
+
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: botResponse,
@@ -151,7 +151,7 @@ export default function ChatWindow() {
 
   const defaultQuickReplies: QuickReply[] = [
     { id: 'default-1', text: "I feel anxious" },
-    { id: 'default-2', text: "I'm stressed" }, 
+    { id: 'default-2', text: "I'm stressed" },
     { id: 'default-3', text: "I need support" },
     { id: 'default-4', text: "Tell me about breathing exercises" }
   ];
@@ -166,7 +166,7 @@ export default function ChatWindow() {
       };
       const updated = [...customQuickReplies, newReply];
       setCustomQuickReplies(updated);
-      
+
       const token = getAuthToken();
       if (token) {
         try {
@@ -183,10 +183,10 @@ export default function ChatWindow() {
   };
 
   const removeCustomQuickReply = async (replyToRemove: QuickReply | string) => {
-    const idToRemove = typeof replyToRemove === 'string' 
+    const idToRemove = typeof replyToRemove === 'string'
       ? customQuickReplies.find(r => r.text === replyToRemove)?.id
       : replyToRemove.id;
-    
+
     if (idToRemove) {
       const updated = customQuickReplies.filter(r => r.id !== idToRemove);
       setCustomQuickReplies(updated);
@@ -207,7 +207,7 @@ export default function ChatWindow() {
     const userName = profile?.name || "friend";
     const hour = new Date().getHours();
     let greeting = "Hello";
-    
+
     if (hour < 12) greeting = "Good morning";
     else if (hour < 17) greeting = "Good afternoon";
     else greeting = "Good evening";
@@ -238,9 +238,9 @@ export default function ChatWindow() {
       </div>
 
       {/* Safety Modal */}
-      <SafetyModal 
-        isOpen={showSafetyModal} 
-        onClose={() => setShowSafetyModal(false)} 
+      <SafetyModal
+        isOpen={showSafetyModal}
+        onClose={() => setShowSafetyModal(false)}
       />
     </div>
   );

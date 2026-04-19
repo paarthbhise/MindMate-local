@@ -15,7 +15,7 @@ app.use(express.json());
 // Auth Routes
 app.post('/api/auth/register', async (req, res) => {
   const { username, email, password } = req.body;
-  
+
   try {
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ username }, { email }] }
@@ -43,7 +43,7 @@ app.post('/api/auth/register', async (req, res) => {
     });
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-    
+
     res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -52,7 +52,7 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
-  
+
   try {
     const user = await prisma.user.findFirst({
       where: {
@@ -84,11 +84,11 @@ app.get('/api/auth/me', authenticate, async (req: AuthRequest, res) => {
       where: { id: req.userId },
       select: { id: true, username: true, email: true, createdAt: true }
     });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -122,12 +122,12 @@ app.get('/api/profile', authenticate, async (req: AuthRequest, res) => {
 app.put('/api/profile', authenticate, async (req: AuthRequest, res) => {
   try {
     const { name, notifications, darkMode, reminderTime, theme } = req.body;
-    
+
     const profile = await prisma.userProfile.update({
       where: { userId: req.userId },
       data: { name, notifications, darkMode, reminderTime, theme }
     });
-    
+
     res.json(profile);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -141,7 +141,7 @@ app.get('/api/chat', authenticate, async (req: AuthRequest, res) => {
       where: { userId: req.userId },
       orderBy: { timestamp: 'asc' }
     });
-    
+
     res.json(messages);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -181,7 +181,7 @@ app.post('/api/chat/mock', authenticate, async (req: AuthRequest, res) => {
   // Simple mock logic ported from frontend
   let botResponse = "I'm here to listen. Tell me more about what's on your mind.";
   const input = text.toLowerCase();
-  
+
   if (input.includes("anxious") || input.includes("anxiety")) {
     botResponse = "Anxiety can be really overwhelming. Have you tried the 4-7-8 breathing exercise in our resources? It might help ground you.";
   } else if (input.includes("stress")) {
@@ -189,7 +189,7 @@ app.post('/api/chat/mock', authenticate, async (req: AuthRequest, res) => {
   } else if (input.includes("sad") || input.includes("depressed")) {
     botResponse = "I'm sorry you're feeling this way. It takes courage to acknowledge these feelings. Please remember I'm here to support you, and there's no rush to feel better immediately.";
   }
-  
+
   setTimeout(() => {
     res.json({ response: botResponse });
   }, 1000); // Simulate network delay
@@ -241,12 +241,12 @@ app.get('/api/resources/favorites', authenticate, async (req: AuthRequest, res) 
 app.post('/api/resources/favorites', authenticate, async (req: AuthRequest, res) => {
   try {
     const { resourceIds } = req.body;
-    
+
     // Clear old favorites
     await prisma.favoriteResource.deleteMany({
       where: { userId: req.userId }
     });
-    
+
     // Create new ones
     if (resourceIds && resourceIds.length > 0) {
       await prisma.favoriteResource.createMany({
@@ -256,7 +256,7 @@ app.post('/api/resources/favorites', authenticate, async (req: AuthRequest, res)
         }))
       });
     }
-    
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -278,11 +278,11 @@ app.get('/api/chat/quick-replies', authenticate, async (req: AuthRequest, res) =
 app.post('/api/chat/quick-replies', authenticate, async (req: AuthRequest, res) => {
   try {
     const { replies } = req.body;
-    
+
     await prisma.customQuickReply.deleteMany({
       where: { userId: req.userId }
     });
-    
+
     if (replies && replies.length > 0) {
       await prisma.customQuickReply.createMany({
         data: replies.map((r: { text: string }) => ({
@@ -291,17 +291,21 @@ app.post('/api/chat/quick-replies', authenticate, async (req: AuthRequest, res) 
         }))
       });
     }
-    
+
     const newReplies = await prisma.customQuickReply.findMany({
       where: { userId: req.userId }
     });
-    
+
     res.json(newReplies);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
+}
+
+export default app;

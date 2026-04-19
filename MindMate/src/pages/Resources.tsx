@@ -84,13 +84,13 @@ const DETAILED_RESOURCES: DetailedResource[] = [
     id: "lgbtq-hotline",
     title: "LGBTQ National Hotline",
     description: "Confidential peer support for LGBTQ+ individuals and allies. Available 1-4pm EST Monday-Friday.",
-    category: "Crisis Support", 
+    category: "Crisis Support",
     contact: "1-888-843-4564",
     url: "https://www.lgbtqnationalhotline.org/",
     tags: ["lgbtq", "peer support", "identity", "crisis"],
     icon: "phone"
   },
-  
+
   // Professional Therapy
   {
     id: "betterhelp",
@@ -211,11 +211,11 @@ const DETAILED_RESOURCES: DetailedResource[] = [
 ];
 
 const CATEGORIES = [
-  "All", 
-  "Crisis Support", 
-  "Professional Therapy", 
-  "Self-Care & Mindfulness", 
-  "Support Communities", 
+  "All",
+  "Crisis Support",
+  "Professional Therapy",
+  "Self-Care & Mindfulness",
+  "Support Communities",
   "Educational"
 ];
 
@@ -286,9 +286,9 @@ export default function Resources() {
     const newFavorites = favorites.includes(resourceId)
       ? favorites.filter(id => id !== resourceId)
       : [...favorites, resourceId];
-    
+
     setFavorites(newFavorites);
-    
+
     const token = getAuthToken();
     if (token) {
       try {
@@ -301,7 +301,7 @@ export default function Resources() {
         console.error(err);
       }
     }
-    
+
     toast({
       title: favorites.includes(resourceId) ? "Removed from favorites" : "Added to favorites",
       description: favorites.includes(resourceId) ? "Resource removed from your favorites." : "Resource saved to your favorites.",
@@ -326,27 +326,25 @@ export default function Resources() {
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Find helpful tools and support for your wellbeing journey
           </p>
-          
+
           {/* View Toggle */}
           <div className="flex justify-center mt-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-1 flex">
               <button
                 onClick={() => setShowDetailed(false)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  !showDetailed 
-                    ? "bg-teal-500 text-white" 
-                    : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${!showDetailed
+                  ? "bg-teal-500 text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
+                  }`}
               >
                 Quick Access
               </button>
               <button
                 onClick={() => setShowDetailed(true)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  showDetailed 
-                    ? "bg-teal-500 text-white" 
-                    : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${showDetailed
+                  ? "bg-teal-500 text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
+                  }`}
               >
                 Detailed Directory
               </button>
@@ -360,7 +358,7 @@ export default function Resources() {
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-8">
               <div className="flex items-center mb-4">
                 <svg className="w-8 h-8 text-red-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
                 </svg>
                 <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
                   Crisis Support
@@ -446,7 +444,7 @@ export default function Resources() {
               <div className="mb-12">
                 <div className="flex items-center mb-6">
                   <svg className="w-6 h-6 text-red-500 mr-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
                   </svg>
                   <h2 className="text-2xl font-bold text-red-700 dark:text-red-400">
                     Crisis Support - Available 24/7

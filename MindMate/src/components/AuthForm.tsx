@@ -60,7 +60,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -69,7 +69,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
 
     try {
       let result;
-      
+
       if (isLogin) {
         result = await login(formData.username, formData.password);
       } else {
@@ -79,8 +79,8 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
       if (result.success) {
         toast({
           title: isLogin ? "Welcome back!" : "Account created successfully!",
-          description: isLogin 
-            ? "You've been logged in successfully." 
+          description: isLogin
+            ? "You've been logged in successfully."
             : "Your account has been created and you're now logged in.",
         });
         onAuthSuccess();
@@ -122,15 +122,15 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-500 rounded-full mb-6">
             <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome to MindMate
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            {isLogin 
-              ? "Sign in to access your personal mental health companion" 
+            {isLogin
+              ? "Sign in to access your personal mental health companion"
               : "Create your account to start your wellness journey"
             }
           </p>
@@ -140,21 +140,19 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           <div className="flex mb-8">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                isLogin
+              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${isLogin
                   ? "bg-teal-500 text-white"
                   : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
-              }`}
+                }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                !isLogin
+              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${!isLogin
                   ? "bg-teal-500 text-white"
                   : "text-gray-600 dark:text-gray-300 hover:text-teal-500"
-              }`}
+                }`}
             >
               Sign Up
             </button>
@@ -171,11 +169,10 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
                   type="text"
                   value={formData.username}
                   onChange={(e) => handleInputChange("username", e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
-                    errors.username
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.username
                       ? "border-red-300 dark:border-red-600"
                       : "border-gray-200 dark:border-gray-600"
-                  } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   placeholder={isLogin ? "Enter username or email" : "Choose a username"}
                 />
               </div>
@@ -195,11 +192,10 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
-                      errors.email
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.email
                         ? "border-red-300 dark:border-red-600"
                         : "border-gray-200 dark:border-gray-600"
-                    } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -219,11 +215,10 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border ${
-                    errors.password
+                  className={`w-full pl-10 pr-12 py-3 rounded-xl border ${errors.password
                       ? "border-red-300 dark:border-red-600"
                       : "border-gray-200 dark:border-gray-600"
-                  } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                    } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -250,11 +245,10 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
                     type={showPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 rounded-xl border ${
-                      errors.confirmPassword
+                    className={`w-full pl-10 pr-4 py-3 rounded-xl border ${errors.confirmPassword
                         ? "border-red-300 dark:border-red-600"
                         : "border-gray-200 dark:border-gray-600"
-                    } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      } bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500`}
                     placeholder="Confirm your password"
                   />
                 </div>

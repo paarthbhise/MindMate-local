@@ -39,9 +39,9 @@ export function useChatHistory() {
     if (token) {
       await fetch('/api/chat', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(message)
       });
@@ -55,9 +55,9 @@ export function useChatHistory() {
       for (const msg of messages) {
         await fetch('/api/chat', {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(msg)
         });
