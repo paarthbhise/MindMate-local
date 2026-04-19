@@ -47,7 +47,16 @@ export const register = async (username: string, email: string, password: string
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),
     });
-    const data = await res.json();
+    
+    // Instead of immediately breaking on .json(), read text first
+    const textData = await res.text();
+    let data;
+    try {
+      data = JSON.parse(textData);
+    } catch (e) {
+      console.error("Backend Error Response:", textData);
+      return { success: false, error: 'Server crashed: ' + textData.substring(0, 100) };
+    }
 
     if (!res.ok) {
       return { success: false, error: data.error || 'Registration failed' };
@@ -55,8 +64,8 @@ export const register = async (username: string, email: string, password: string
 
     saveAuthState(data.token, data.user);
     return { success: true };
-  } catch (error) {
-    return { success: false, error: 'Network error' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
   }
 };
 
@@ -67,7 +76,16 @@ export const login = async (usernameOrEmail: string, password: string): Promise<
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ usernameOrEmail, password }),
     });
-    const data = await res.json();
+    
+    // Instead of immediately breaking on .json(), read text first
+    const textData = await res.text();
+    let data;
+    try {
+      data = JSON.parse(textData);
+    } catch (e) {
+      console.error("Backend Error Response:", textData);
+      return { success: false, error: 'Server crashed: ' + textData.substring(0, 100) };
+    }
 
     if (!res.ok) {
       return { success: false, error: data.error || 'Login failed' };
@@ -75,8 +93,8 @@ export const login = async (usernameOrEmail: string, password: string): Promise<
 
     saveAuthState(data.token, data.user);
     return { success: true };
-  } catch (error) {
-    return { success: false, error: 'Network error' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
   }
 };
 
