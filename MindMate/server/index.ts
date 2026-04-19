@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-import { authenticate, AuthRequest } from './middleware/auth';
+import { authenticate, AuthRequest } from './middleware/auth.js';
 
 const app = express();
 const prisma = new PrismaClient();
